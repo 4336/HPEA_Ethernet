@@ -69,6 +69,7 @@ void setup() {
     pinMode(13, OUTPUT);
 
     analogReadResolution(ADC_RES_BIT);
+    analogWriteResolution(DAC_RES_BIT);
 
     Serial.begin(1152000);
     

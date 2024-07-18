@@ -15,8 +15,8 @@ void UART_TX(UART_Vars_t &u, MIT_CAN &m, Pressure_t &p, Flag_t &f, Command_t &c)
     memcpy(u.tx_buf + 3, &state, 1);
 
     uint8_t valve = 0;
-    valve |= c.valve1 << 0;
-    valve |= c.valve2 << 1;
+    valve |= (c.valve1>0) << 0;
+    valve |= (c.valve2>0) << 1;
     memcpy(u.tx_buf + 4, &valve, 1);
 
     int16_t pos = m.get_pos() * 100;
@@ -83,14 +83,20 @@ bool UART_RX(UART_Vars_t &u){
 void UART_Parse(UART_Vars_t &u, Flag_t &f, Command_t &c){
 
     f.rx_time_prev = f.rx_time;
-    f.rx_time = u.rx_buf[1] << 8 | u.rx_buf[2];
+    memcpy(&f.rx_time, u.rx_buf+1, 2);
+
     c.enable = (u.rx_buf[3] >> 0) & 0x01;
     c.error = (u.rx_buf[3] >> 1) & 0x01;
     c.reset = (u.rx_buf[3] >> 2) & 0x01;
     c.zero = (u.rx_buf[3] >> 3) & 0x01;
-    c.valve1 = (u.rx_buf[3] >> 6) & 0x01;
-    c.valve2 = (u.rx_buf[3] >> 7) & 0x01;
-    memcpy(&c.tau, u.rx_buf + 4, 4);
+
+    uint16_t temp;
+    memcpy(&temp, u.rx_buf+4, 2);
+    c.valve1 = temp / 16; //2^4
+    memcpy(&temp, u.rx_buf+6, 2);
+    c.valve2 = temp / 16; //2^4
+
+    memcpy(&c.tau, u.rx_buf + 8, 4);
 
 }
 

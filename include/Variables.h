@@ -5,6 +5,7 @@
 
 // #define UART_ASCII
 #define ADC_RES_BIT 12
+#define DAC_RES_BIT 12
 
 #define VALVE1 8
 #define VALVE2 7
@@ -52,8 +53,8 @@ typedef struct{
     bool reset = false;
     bool zero = false;
 
-    bool valve1 = false;
-    bool valve2 = false;
+    uint16_t valve1 = false;
+    uint16_t valve2 = false;
     float tau = 0.0;
     float vel_max = 0.0;
     float pos_min = 0.0;

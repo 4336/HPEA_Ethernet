@@ -14,7 +14,7 @@
 #define STAR 0x2a
 
 #define UART_TX_LEN 18
-#define UART_RX_LEN 11
+#define UART_RX_LEN 15
 #define ASCII_RX_LEN 3
 
 typedef struct{

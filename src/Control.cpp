@@ -81,8 +81,10 @@ State_e ControlLoopREADY(MIT_CAN &m, Flag_t &f, Command_t &c)
 
     // m.set_mode(MIT_ON);
     m.set_tau(0);
-    digitalWrite(VALVE1, c.valve1);
-    digitalWrite(VALVE2, c.valve2);
+    // digitalWrite(VALVE1, c.valve1);
+    // digitalWrite(VALVE2, c.valve2);
+    analogWrite(VALVE1, c.valve1);
+    analogWrite(VALVE2, c.valve2);
     return STATE_READY;
 }
 
@@ -92,8 +94,10 @@ State_e ControlLoopRUN(MIT_CAN &m, Flag_t &f, Command_t &c)
     digitalWrite(13, 1);
     
     m.set_tau(c.tau);
-    digitalWrite(VALVE1, c.valve1);
-    digitalWrite(VALVE2, c.valve2);
+    // digitalWrite(VALVE1, c.valve1);
+    // digitalWrite(VALVE2, c.valve2);
+    analogWrite(VALVE1, c.valve1);
+    analogWrite(VALVE2, c.valve2);
 
     return STATE_RUN;
 }
