@@ -13,7 +13,7 @@
 #define LF 0x0a
 #define STAR 0x2a
 
-#define UART_TX_LEN 18
+#define UART_TX_LEN 21
 #define UART_RX_LEN 15
 #define ASCII_RX_LEN 3
 

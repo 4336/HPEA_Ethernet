@@ -3,12 +3,15 @@
 
 #include <Arduino.h>
 
-// #define UART_ASCII
+#define UART_MODE_ASCII
+
 #define ADC_RES_BIT 12
 #define DAC_RES_BIT 12
 
-#define VALVE1 8
-#define VALVE2 7
+#define PWM_MAX 4095 // 12bit-1
+
+#define VALVE1 11
+#define VALVE2 12
 
 typedef enum{
     STATE_OFF,
@@ -36,7 +39,8 @@ typedef struct{
 }Flag_t;
 
 typedef struct{
-    uint8_t pressure_pin = A0;
+    uint8_t sensor1_pin = A0;
+    uint8_t sensor2_pin = A1;
 }Pressure_t;
 
 typedef struct{
@@ -53,8 +57,8 @@ typedef struct{
     bool reset = false;
     bool zero = false;
 
-    uint16_t valve1 = false;
-    uint16_t valve2 = false;
+    float valve1 = false;
+    float valve2 = false;
     float tau = 0.0;
     float vel_max = 0.0;
     float pos_min = 0.0;

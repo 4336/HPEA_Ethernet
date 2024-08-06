@@ -1,8 +1,8 @@
 #include "UART.h"
 
 void UART_TX(UART_Vars_t &u, MIT_CAN &m, Pressure_t &p, Flag_t &f, Command_t &c){
-#ifndef UART_ASCII
-    digitalWrite(13, millis() % 1000 < 500);
+#ifndef UART_MODE_ASCII
+    // digitalWrite(13, millis() % 1000 < 500);
 
     memset(u.tx_buf, 0, UART_TX_LEN);
 
@@ -14,28 +14,29 @@ void UART_TX(UART_Vars_t &u, MIT_CAN &m, Pressure_t &p, Flag_t &f, Command_t &c)
     int8_t state = f.state;
     memcpy(u.tx_buf + 3, &state, 1);
 
-    uint8_t valve = 0;
-    valve |= (c.valve1>0) << 0;
-    valve |= (c.valve2>0) << 1;
-    memcpy(u.tx_buf + 4, &valve, 1);
+    uint16_t valve1 = c.valve1 * 65535;
+    memcpy(u.tx_buf + 4, &valve1, 2);
+
+    uint16_t valve2 = c.valve2 * 65535;
+    memcpy(u.tx_buf + 6, &valve2, 2);
 
     int16_t pos = m.get_pos() * 100;
-    memcpy(u.tx_buf + 5, &pos, 2);
+    memcpy(u.tx_buf + 8, &pos, 2);
 
     int16_t vel = m.get_vel() * 100;
-    memcpy(u.tx_buf + 7, &vel, 2);
+    memcpy(u.tx_buf + 10, &vel, 2);
 
     int16_t tau = m.get_tau() * 100;
-    memcpy(u.tx_buf + 9, &tau, 2);
+    memcpy(u.tx_buf + 12, &tau, 2);
 
-    int16_t pres1 = GetPressure(p) * 10;
-    memcpy(u.tx_buf + 11, &pres1, 2);
+    int16_t pres1 = GetPressure(p, 1) * 10;
+    memcpy(u.tx_buf + 14, &pres1, 2);
 
-    int16_t pres2 = GetPressure(p) * 10;
-    memcpy(u.tx_buf + 13, &pres2, 2);
+    int16_t pres2 = GetPressure(p, 2) * 10;
+    memcpy(u.tx_buf + 16, &pres2, 2);
 
     uint16_t crc = MakeCRC16(u.tx_buf, UART_TX_LEN-3);
-    memcpy(u.tx_buf + 15, &crc, 2);
+    memcpy(u.tx_buf + 18, &crc, 2);
 
     u.tx_buf[UART_TX_LEN-1] = ETX;
 
@@ -49,7 +50,7 @@ void UART_TX(UART_Vars_t &u, MIT_CAN &m, Pressure_t &p, Flag_t &f, Command_t &c)
         Serial.print(m.get_vel(), 3); Serial.print(' ');
         Serial.print(m.get_tau(), 3); Serial.print(' ');
         // Serial.print(analogRead(A0)); Serial.println();
-        Serial.print(GetPressure(p)); Serial.println();
+        Serial.print(GetPressure(p, 1)); Serial.println();
     }
 #endif
 }
@@ -73,7 +74,6 @@ bool UART_RX(UART_Vars_t &u){
             u.index = 0;
             return true;
         }else{
-            digitalWrite(13, HIGH);
             u.index = 0;
         }
     }
@@ -92,9 +92,9 @@ void UART_Parse(UART_Vars_t &u, Flag_t &f, Command_t &c){
 
     uint16_t temp;
     memcpy(&temp, u.rx_buf+4, 2);
-    c.valve1 = temp / 16; //2^4
+    c.valve1 = temp / 65535.0;
     memcpy(&temp, u.rx_buf+6, 2);
-    c.valve2 = temp / 16; //2^4
+    c.valve2 = temp / 65535.0;
 
     memcpy(&c.tau, u.rx_buf + 8, 4);
 
