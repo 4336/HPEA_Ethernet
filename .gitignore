@@ -1,4 +1,6 @@
 .DS_Store
 .pio/
 .vscode/
-log/*
+__pycache__
+
+/log/*
