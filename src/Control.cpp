@@ -35,7 +35,7 @@ void UpdateCommand(Flag_t &f, Command_t &c)
 State_e ControlLoopOFF(MIT_CAN &m, Flag_t &f)
 {
     if(f.state != f.state_prev) m.set_mode(MIT_OFF);
-    digitalWrite(13, 0);
+    analogWrite(13, millis() % 1024);
 
     static uint16_t cnt = 0;
     if(++cnt >= 1000){
@@ -48,16 +48,17 @@ State_e ControlLoopOFF(MIT_CAN &m, Flag_t &f)
 State_e ControlLoopINIT(MIT_CAN &m, Flag_t &f)
 {
     if(f.state != f.state_prev) m.set_mode(MIT_ON);
-    digitalWrite(13, 0);
+    digitalWrite(13, millis() % 1000 < 200);
 
     m.set_tau(-1); //min torque to set zero
     if(abs(m.get_vel()) < VEL_ZERO){
         static uint8_t cnt = 0;
-        if(++cnt >= 1*CTRL_FREQ){
+        if(++cnt >= CTRL_FREQ*0.1){
             cnt = 0;
             if(abs(m.get_pos()) > 0.001) m.set_mode(MIT_ZERO);
+            Serial.println("Zeroing");
         }
-        if(f.age_cnt++ > 1*CTRL_FREQ && m.get_pos() < 0.01){
+        if(f.age_cnt++ > 1*CTRL_FREQ && abs(m.get_pos()) < 0.01){
             f.age_cnt = 0;
             return STATE_READY;
         }
@@ -81,8 +82,10 @@ State_e ControlLoopREADY(MIT_CAN &m, Flag_t &f, Command_t &c)
 
     // m.set_mode(MIT_ON);
     m.set_tau(0);
-    digitalWrite(VALVE1, c.valve1);
-    digitalWrite(VALVE2, c.valve2);
+    // digitalWrite(VALVE1, c.valve1);
+    // digitalWrite(VALVE2, c.valve2);
+    analogWrite(VALVE1, c.valve1*PWM_MAX);
+    analogWrite(VALVE2, c.valve2*PWM_MAX);
     return STATE_READY;
 }
 
@@ -90,10 +93,13 @@ State_e ControlLoopRUN(MIT_CAN &m, Flag_t &f, Command_t &c)
 {
     if(f.state != f.state_prev) m.set_mode(MIT_ON);
     digitalWrite(13, 1);
-    
+
     m.set_tau(c.tau);
-    digitalWrite(VALVE1, c.valve1);
-    digitalWrite(VALVE2, c.valve2);
+
+    // digitalWrite(VALVE1, c.valve1);
+    // digitalWrite(VALVE2, c.valve2);
+    analogWrite(VALVE1, c.valve1*PWM_MAX);
+    analogWrite(VALVE2, c.valve2*PWM_MAX);
 
     return STATE_RUN;
 }
@@ -110,8 +116,8 @@ State_e ControlLoopERROR(MIT_CAN &m, Flag_t &f)
         digitalWrite(13, led_flag);
     }
 
-    digitalWrite(VALVE1, 0);
-    digitalWrite(VALVE2, 0);
+    analogWrite(VALVE1, 0);
+    analogWrite(VALVE2, 0);
 
     // check motor stopped over 5sec
     m.set_tau(-0.1);

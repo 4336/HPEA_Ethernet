@@ -4,7 +4,10 @@
 #include <Arduino.h>
 #include "Variables.h"
 
-void Pressure_INIT(Pressure_t p, uint8_t num);
-float GetPressure(Pressure_t p);
+void Pressure_INIT(Sensor_t &s, uint8_t pin1, uint8_t pin2);
+float GetPressure(Sensor_t &s, uint8_t sensor);
+
+void Loadcell_INIT(Sensor_t &s, uint8_t pin1);
+float GetLoadcell(Sensor_t &s, uint8_t sensor);
 
 #endif
