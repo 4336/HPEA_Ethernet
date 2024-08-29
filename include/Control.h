@@ -5,7 +5,7 @@
 #include "Variables.h"
 #include "MIT_CAN.h"
 
-#define CTRL_FREQ 100
+#define CTRL_FREQ 1000
 
 #define VEL_ZERO 0.5
 

@@ -53,11 +53,12 @@ State_e ControlLoopINIT(MIT_CAN &m, Flag_t &f)
     m.set_tau(-1); //min torque to set zero
     if(abs(m.get_vel()) < VEL_ZERO){
         static uint8_t cnt = 0;
-        if(++cnt >= 1*CTRL_FREQ){
+        if(++cnt >= CTRL_FREQ*0.1){
             cnt = 0;
             if(abs(m.get_pos()) > 0.001) m.set_mode(MIT_ZERO);
+            Serial.println("Zeroing");
         }
-        if(f.age_cnt++ > 1*CTRL_FREQ && m.get_pos() < 0.01){
+        if(f.age_cnt++ > 1*CTRL_FREQ && abs(m.get_pos()) < 0.01){
             f.age_cnt = 0;
             return STATE_READY;
         }
@@ -93,12 +94,7 @@ State_e ControlLoopRUN(MIT_CAN &m, Flag_t &f, Command_t &c)
     if(f.state != f.state_prev) m.set_mode(MIT_ON);
     digitalWrite(13, 1);
 
-#ifndef UART_MODE_ASCII    
     m.set_tau(c.tau);
-#else
-    static float analog_max = pow(2, ADC_RES_BIT)-1;
-    m.set_tau(analogRead(A0)/analog_max*10);
-#endif
 
     // digitalWrite(VALVE1, c.valve1);
     // digitalWrite(VALVE2, c.valve2);

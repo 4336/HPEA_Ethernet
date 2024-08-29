@@ -39,18 +39,22 @@ typedef struct{
 }Flag_t;
 
 typedef struct{
-    uint8_t sensor1_pin = A0;
-    uint8_t sensor2_pin = A1;
-}Pressure_t;
+    uint8_t pressure1_pin = A4;
+    uint8_t pressure2_pin = A5;
+    uint8_t loadcell_pin = A6;
+}Sensor_t;
 
 typedef struct{
     float pos, vel, tau = 0;
 }MotorState_t;
 
 typedef struct{
-    uint16_t time_stamp = 0;
+    uint32_t time_stamp = 0;
+    uint16_t ping = 0;
 
     uint16_t command_age = 0;
+
+    bool manual_mode = false;
 
     bool enable = false;
     bool error = false;
@@ -60,6 +64,7 @@ typedef struct{
     float valve1 = false;
     float valve2 = false;
     float tau = 0.0;
+    
     float vel_max = 0.0;
     float pos_min = 0.0;
     float pos_max = 0.0;

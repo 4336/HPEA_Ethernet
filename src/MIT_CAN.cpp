@@ -57,11 +57,6 @@ void MIT_CAN::set_gain(float _kp, float _kd){
 }
 
 void MIT_CAN::set_mode(CtrlMode_e mode) {
-#ifdef UART_ASCII
-    Serial.print("set mode: ");
-    Serial.println(mode);
-#endif
-
     memset(msg_w.buf, 0xff, 8); // set buf[0]~buf[7] to 0xff
 
     switch (mode) {
